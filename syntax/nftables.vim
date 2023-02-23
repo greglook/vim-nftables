@@ -10,11 +10,15 @@ if exists("b:current_syntax")
 endif
 
 " Allow alphanumeric, hyphen, and underscores in keywords
-" TODO: why not working for things like ip6?
 syntax iskeyword @,48-57,-,_
 
 " Special keywords
 syntax keyword nftSpecial flush ruleset
+
+" Constant definitions
+syntax match nftConstDefine /^\s*define *\S\+/ contains=nftDefineKeyword,nftConstName
+syntax keyword nftDefineKeyword define contained
+syntax match nftConstName /[a-zA-Z0-9-_]\+/ contained
 
 
 " Table definitions
@@ -49,7 +53,7 @@ syntax match nftSetComment /^\s*comment/ contained containedin=nftSetBlock nextg
 syntax region nftSetElements start=/^\s*elements *= *{/ end=/}/ keepend contained containedin=nftSetBlock contains=nftDelimiter
 syntax keyword nftSetElementsKeyword elements contained containedin=nftSetElements
 " TODO: better definition of set element values here
-"
+
 
 " TODO: Map definitions
 
@@ -60,20 +64,22 @@ syntax match nftChainHeader /\(chain \+\)\@<=\S\+ *{/ contained containedin=nftC
 syntax match nftChainName /[a-zA-Z0-9-_]\+/ contained containedin=nftChainHeader
 
 syntax match nftChainRule /^\s*.\+$/ contained containedin=nftChainBlock contains=nftDelimiter,nftNumber,nftString,nftDuration
-syntax keyword nftMatch ip ip6 tcp udp udplite sctp dccp ah esp comp icmp icmpv6 ether dst frag hbh mh rt vlan arp ct meta contained containedin=nftChainRule
-syntax keyword nftStatement log reject counter limit dnat snat masquerade contained containedin=nftChainRule
-syntax keyword nftVerdictStatement accept drop queue continue return contained containedin=nftChainRule
+syntax keyword nftMatch iif iifname ip ip6 tcp udp udplite sctp dccp ah esp comp icmp icmpv6 ether dst frag hbh mh rt vlan arp ct meta contained containedin=nftChainRule
+syntax keyword nftStatement log reject counter limit contained containedin=nftChainRule
+syntax keyword nftVerdictStatement accept drop queue continue return dnat snat masquerade contained containedin=nftChainRule
 syntax keyword nftVerdictStatement jump goto nextgroup=nftChainName contained containedin=nftChainRule
 
 syntax match nftChainDeclaration /^\s*type .*$/ contained containedin=nftChainBlock contains=nftDelimiter
 syntax keyword nftChainKeyword type hook device priority policy contained containedin=nftChainDeclaration
+syntax keyword nftChainKeyword policy contained containedin=nftChainDeclaration nextgroup=nftChainPolicyKeyword skipwhite
+syntax keyword nftChainPolicy drop accept contained containedin=nftChainDeclaration
 syntax keyword nftChainType filter route nat contained containedin=nftChainDeclaration
 syntax keyword nftHookType ingress prerouting input forward output postrouting contained containedin=nftChainDeclaration
 
 
 " General matches
 syntax match nftDelimiter /[{};]/
-syntax match nftNumber /\d\+/
+syntax match nftNumber /[^a-z]\@<=\d\+/
 syntax region nftString start=/"/ end=/"/
 " TODO: gross, is there a better way to do this?
 syntax match nftDuration /\d\+d\(\d\+h\)\?\(\d\+m\)\?\(\d\+s\)\?\|\d\+h\(\d\+m\)\?\(\d\+s\)\?\|\d\+m\(\d\+s\)\?\|\d\+s/
@@ -90,6 +96,9 @@ highlight def link nftDuration Constant
 highlight def link nftComment Comment
 highlight def link nftSpecial Special
 highlight def link nftDeclare Define
+
+highlight def link nftDefineKeyword Define
+highlight def link nftConstName Identifier
 
 highlight def link nftTableHeader Define
 highlight def link nftTableFamily Type
@@ -113,13 +122,15 @@ highlight def link nftSetComment Define
 highlight def link nftChainHeader Define
 highlight def link nftChainName Identifier
 highlight def link nftChainKeyword Define
+highlight nftChainPolicy ctermfg=red
 highlight def link nftChainType Type
 highlight def link nftHookType Type
 
-"highlight def link nftChainRule
 highlight def link nftMatch Statement
-highlight def link nftStatement Statement
-highlight def link nftVerdictStatement Special
+highlight nftStatement ctermfg=blue
+highlight nftVerdictStatement ctermfg=red
+"highlight def link nftStatement Statement
+"highlight def link nftVerdictStatement Special
 
 
 " Syntax syncing
