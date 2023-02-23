@@ -84,7 +84,7 @@ syntax region nftString start=/"/ end=/"/
 " TODO: gross, is there a better way to do this?
 syntax match nftDuration /\d\+d\(\d\+h\)\?\(\d\+m\)\?\(\d\+s\)\?\|\d\+h\(\d\+m\)\?\(\d\+s\)\?\|\d\+m\(\d\+s\)\?\|\d\+s/
 
-syntax region nftComment start=/^\s*#/ end=/$/
+syntax region nftComment start=/^\s*#/ end=/$/ containedin=ALL
 syntax keyword nftTodo contained containedin=nftComment TODO FIXME XXX NOTE
 
 
@@ -94,6 +94,7 @@ highlight def link nftNumber Constant
 highlight def link nftString Constant
 highlight def link nftDuration Constant
 highlight def link nftComment Comment
+highlight def link nftTodo TODO
 highlight def link nftSpecial Special
 highlight def link nftDeclare Define
 
