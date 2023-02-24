@@ -68,12 +68,12 @@ syntax match nftChainName /[a-zA-Z0-9-_]\+/ contained containedin=nftChainHeader
 syntax match nftChainRule /^\s*.\+$/ contained containedin=nftChainBlock contains=nftDelimiter,nftNumber,nftString,nftDuration
 syntax keyword nftMatch iif iifname oif oifname ip ip6 tcp udp udplite sctp dccp ah esp comp icmp icmpv6 ether dst frag hbh mh rt vlan arp ct meta contained containedin=nftChainRule
 "syntax keyword nftMatch saddr daddr sport dport protocol state  contained containedin=nftChainRule
-syntax keyword nftStatement queue continue return dnat snat masquerade log reject counter limit contained containedin=nftChainRule
+syntax keyword nftStatement queue continue return dnat snat masquerade log counter limit contained containedin=nftChainRule
 syntax keyword nftStatement jump goto nextgroup=nftChainName contained containedin=nftChainRule
-syntax keyword nftStatementDrop drop nextgroup=nftChainName contained containedin=nftChainDeclaration,nftChainRule
+syntax keyword nftStatementDrop drop reject nextgroup=nftChainName contained containedin=nftChainDeclaration,nftChainRule
 syntax keyword nftStatementAccept accept nextgroup=nftChainName contained containedin=nftChainDeclaration,nftChainRule
 
-syntax match nftChainDeclaration /^\s*type .*$/ contained containedin=nftChainBlock contains=nftDelimiter
+syntax match nftChainDeclaration /^\s*type .*$/ contained containedin=nftChainBlock contains=nftDelimiter,nftNumber
 syntax keyword nftChainKeyword type hook device priority policy contained containedin=nftChainDeclaration
 syntax keyword nftChainKeyword policy contained containedin=nftChainDeclaration nextgroup=nftChainPolicyKeyword skipwhite
 syntax keyword nftChainType filter route nat contained containedin=nftChainDeclaration
@@ -82,7 +82,7 @@ syntax keyword nftHookType ingress prerouting input forward output postrouting c
 
 " General matches
 syntax match nftDelimiter /[{};]/
-syntax match nftNumber /[^a-z]\@<=\d\+/
+syntax match nftNumber /[^a-z]\@<=-\?\d\+/
 syntax region nftString start=/"/ end=/"/
 " TODO: gross, is there a better way to do this?
 syntax match nftDuration /\d\+d\(\d\+h\)\?\(\d\+m\)\?\(\d\+s\)\?\|\d\+h\(\d\+m\)\?\(\d\+s\)\?\|\d\+m\(\d\+s\)\?\|\d\+s/
