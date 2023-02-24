@@ -15,10 +15,11 @@ syntax iskeyword @,48-57,-,_
 " Special keywords
 syntax keyword nftSpecial flush ruleset
 
-" Constant definitions
-syntax match nftConstDefine /^\s*define *\S\+/ contains=nftDefineKeyword,nftConstName
+" Variable definitions
+syntax match nftVariableDefine /^\s*define *\S\+/ contains=nftDefineKeyword,nftVariableName
 syntax keyword nftDefineKeyword define contained
-syntax match nftConstName /[a-zA-Z0-9-_]\+/ contained
+syntax match nftVariableName /[a-zA-Z0-9_-]\+/ contained
+syntax match nftVariableRef /\$[a-zA-Z0-9_-]\+/ containedin=ALL
 
 
 " Table definitions
@@ -31,7 +32,8 @@ syntax match nftTableName /[a-zA-Z0-9-_]\+/ contained containedin=nftTableHeader
 " Set definitions
 syntax region nftSetBlock matchgroup=nftDeclare start=/^\s*set / end=/^\s*}/me=e-1 fold contained containedin=nftTableBlock
 syntax match nftSetHeader /\(set \+\)\@<=\S\+ *{/ contained containedin=nftSetBlock contains=nftDelimiter
-syntax match nftSetName /[a-zA-Z0-9-_]\+/ contained containedin=nftSetHeader
+syntax match nftSetName /[a-zA-Z0-9_-]\+/ contained containedin=nftSetHeader
+syntax match nftSetRef /@[a-zA-Z0-9_-]\+/ containedin=ALL
 
 syntax match nftSetType /^\s*type .*$/ contained containedin=nftSetBlock contains=nftSetTypeKeyword
 " TODO: contains expression
@@ -64,15 +66,16 @@ syntax match nftChainHeader /\(chain \+\)\@<=\S\+ *{/ contained containedin=nftC
 syntax match nftChainName /[a-zA-Z0-9-_]\+/ contained containedin=nftChainHeader
 
 syntax match nftChainRule /^\s*.\+$/ contained containedin=nftChainBlock contains=nftDelimiter,nftNumber,nftString,nftDuration
-syntax keyword nftMatch iif iifname ip ip6 tcp udp udplite sctp dccp ah esp comp icmp icmpv6 ether dst frag hbh mh rt vlan arp ct meta contained containedin=nftChainRule
-syntax keyword nftStatement log reject counter limit contained containedin=nftChainRule
-syntax keyword nftVerdictStatement accept drop queue continue return dnat snat masquerade contained containedin=nftChainRule
-syntax keyword nftVerdictStatement jump goto nextgroup=nftChainName contained containedin=nftChainRule
+syntax keyword nftMatch iif iifname oif oifname ip ip6 tcp udp udplite sctp dccp ah esp comp icmp icmpv6 ether dst frag hbh mh rt vlan arp ct meta contained containedin=nftChainRule
+"syntax keyword nftMatch saddr daddr sport dport protocol state  contained containedin=nftChainRule
+syntax keyword nftStatement queue continue return dnat snat masquerade log reject counter limit contained containedin=nftChainRule
+syntax keyword nftStatement jump goto nextgroup=nftChainName contained containedin=nftChainRule
+syntax keyword nftStatementDrop drop nextgroup=nftChainName contained containedin=nftChainDeclaration,nftChainRule
+syntax keyword nftStatementAccept accept nextgroup=nftChainName contained containedin=nftChainDeclaration,nftChainRule
 
 syntax match nftChainDeclaration /^\s*type .*$/ contained containedin=nftChainBlock contains=nftDelimiter
 syntax keyword nftChainKeyword type hook device priority policy contained containedin=nftChainDeclaration
 syntax keyword nftChainKeyword policy contained containedin=nftChainDeclaration nextgroup=nftChainPolicyKeyword skipwhite
-syntax keyword nftChainPolicy drop accept contained containedin=nftChainDeclaration
 syntax keyword nftChainType filter route nat contained containedin=nftChainDeclaration
 syntax keyword nftHookType ingress prerouting input forward output postrouting contained containedin=nftChainDeclaration
 
@@ -99,7 +102,8 @@ highlight def link nftSpecial Special
 highlight def link nftDeclare Define
 
 highlight def link nftDefineKeyword Define
-highlight def link nftConstName Identifier
+highlight def link nftVariableName Identifier
+highlight def link nftVariableRef Identifier
 
 highlight def link nftTableHeader Define
 highlight def link nftTableFamily Type
@@ -107,6 +111,7 @@ highlight def link nftTableName Identifier
 
 highlight def link nftSetHeader Define
 highlight def link nftSetName Identifier
+highlight def link nftSetRef Identifier
 highlight def link nftSetType Define
 highlight def link nftSetTypeKeyword Type
 highlight def link nftSetElementsKeyword Define
@@ -123,15 +128,13 @@ highlight def link nftSetComment Define
 highlight def link nftChainHeader Define
 highlight def link nftChainName Identifier
 highlight def link nftChainKeyword Define
-highlight nftChainPolicy ctermfg=red
 highlight def link nftChainType Type
 highlight def link nftHookType Type
 
-highlight def link nftMatch Statement
+highlight nftMatch ctermfg=yellow
 highlight nftStatement ctermfg=blue
-highlight nftVerdictStatement ctermfg=red
-"highlight def link nftStatement Statement
-"highlight def link nftVerdictStatement Special
+highlight nftStatementDrop ctermfg=red
+highlight nftStatementAccept ctermfg=green
 
 
 " Syntax syncing
