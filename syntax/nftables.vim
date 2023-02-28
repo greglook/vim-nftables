@@ -19,7 +19,7 @@ syntax keyword nftSpecial flush ruleset
 syntax match nftVariableDefine /^\s*define *\S\+/ contains=nftDefineKeyword,nftVariableName
 syntax keyword nftDefineKeyword define contained
 syntax match nftVariableName /[a-zA-Z0-9_-]\+/ contained
-syntax match nftVariableRef /\$[a-zA-Z0-9_-]\+/ containedin=ALL
+syntax match nftVariableRef /\$[a-zA-Z0-9_-]\+/ containedin=ALLBUT,nftComment
 
 
 " Table definitions
@@ -33,7 +33,7 @@ syntax match nftTableName /[a-zA-Z0-9-_]\+/ contained containedin=nftTableHeader
 syntax region nftSetBlock matchgroup=nftDeclare start=/^\s*set / end=/^\s*}/me=e-1 fold contained containedin=nftTableBlock
 syntax match nftSetHeader /\(set \+\)\@<=\S\+ *{/ contained containedin=nftSetBlock contains=nftDelimiter
 syntax match nftSetName /[a-zA-Z0-9_-]\+/ contained containedin=nftSetHeader
-syntax match nftSetRef /@[a-zA-Z0-9_-]\+/ containedin=ALL
+syntax match nftSetRef /@[a-zA-Z0-9_-]\+/ containedin=ALLBUT,nftComment
 
 syntax match nftSetType /^\s*type .*$/ contained containedin=nftSetBlock contains=nftSetTypeKeyword
 " TODO: contains expression
@@ -52,7 +52,7 @@ syntax match nftSetTimeout /^\s*timeout/ contained containedin=nftSetBlock nextg
 syntax match nftSetCounter /^\s*counter/ contained containedin=nftSetBlock
 syntax match nftSetComment /^\s*comment/ contained containedin=nftSetBlock nextgroup=nftString skipwhite
 
-syntax region nftSetElements start=/^\s*elements *= *{/ end=/}/ keepend contained containedin=nftSetBlock contains=nftDelimiter
+syntax region nftSetElements start=/^\s*elements *= *{/ end=/}/ keepend contained containedin=nftSetBlock contains=nftDelimiter,nftNumber
 syntax keyword nftSetElementsKeyword elements contained containedin=nftSetElements
 " TODO: better definition of set element values here
 
@@ -87,7 +87,7 @@ syntax region nftString start=/"/ end=/"/
 " TODO: gross, is there a better way to do this?
 syntax match nftDuration /\d\+d\(\d\+h\)\?\(\d\+m\)\?\(\d\+s\)\?\|\d\+h\(\d\+m\)\?\(\d\+s\)\?\|\d\+m\(\d\+s\)\?\|\d\+s/
 
-syntax region nftComment start=/^\s*#/ end=/$/ containedin=ALL
+syntax region nftComment start=/#/ end=/$/ containedin=ALLBUT,nftComment
 syntax keyword nftTodo contained containedin=nftComment TODO FIXME XXX NOTE
 
 
@@ -129,7 +129,7 @@ highlight def link nftChainHeader Define
 highlight def link nftChainName Identifier
 highlight def link nftChainKeyword Define
 highlight def link nftChainType Type
-highlight def link nftHookType Type
+highlight def link nftHookType Constant
 
 highlight nftMatch ctermfg=yellow
 highlight nftStatement ctermfg=blue
